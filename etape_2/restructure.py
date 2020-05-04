@@ -17,7 +17,7 @@ new_text_data = list()
 for text_data in div:
     new_text_data.append({
         "n": text_data.get("@n"),
-        "texte": text_data.get("p", {}).get("#text")
+        "texte": text_data.get("p")
     })
 
 with open('./restructured_data.json', 'w') as f:
