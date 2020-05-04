@@ -16,8 +16,10 @@ for text_data in data.get("donnees_textuelles"):
     count = 1
     sentences = tokenize.sent_tokenize(text)
     for sentence in sentences:
-        wsd.extend(disambiguate(sentence, algorithm=maxsim, similarity_option='wup', keepLemmas=True))
-        print("Set " + str(n) + ": sentence " + str(count) + " out of " + str(len(sentences)))
+        wsd.extend(disambiguate(sentence, algorithm=maxsim,
+                                similarity_option='wup', keepLemmas=True))
+        print("Set " + str(n) + ": sentence " +
+              str(count) + " out of " + str(len(sentences)))
         count += 1
 
     wsd2 = list()
