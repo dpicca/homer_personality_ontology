@@ -17,12 +17,12 @@ new_text_data = list()
 for text_data in div:
     new_text_data.append({
         "n": text_data.get("@n"),
-        "text": text_data.get("p", {}).get("#text")
+        "texte": text_data.get("p", {}).get("#text")
     })
 
 with open('./restructured_data.json', 'w') as f:
     json.dump({
         "titre": title,
         "auteur": author,
-        "text_data": new_text_data
+        "donnees_textuelles": new_text_data
     }, f)
