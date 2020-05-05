@@ -24,7 +24,8 @@ for text_data in data.get("donnees_textuelles"):
 
     wsd2 = list()
     for word_data in wsd:
-        wsd2.append((word_data[0], word_data[1], str(word_data[2])))
+        wsd2.append((word_data[0], word_data[1], word_data[2].name(
+        ) if word_data[2] is not None else word_data[2]))
 
     new_text_data.append({
         "n": n,
