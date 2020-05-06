@@ -4,7 +4,6 @@ ETAPE 1: passer de .XML à .json
 
 import xmltodict
 import json
-from pprint import pprint
 
 with open("./hom.od_eng.xml", "r") as xml_file:
     xml = xml_file.read()

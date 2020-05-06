@@ -1,4 +1,5 @@
 import json
+import re
 
 data = None
 with open('../etape_1/hom.od_eng.json', 'r') as f:
@@ -17,7 +18,7 @@ new_text_data = list()
 for text_data in div:
     new_text_data.append({
         "n": text_data.get("@n"),
-        "texte": text_data.get("p")
+        "texte": re.sub(r"–", "-", text_data.get("p"))
     })
 
 with open('./restructured_data.json', 'w') as f:
