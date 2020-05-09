@@ -16,8 +16,7 @@ for text_data in data.get("donnees_textuelles"):
     count = 1
     sentences = tokenize.sent_tokenize(text)
     for sentence in sentences:
-        wsd.extend(disambiguate(sentence, algorithm=maxsim,
-                                similarity_option='wup', keepLemmas=True))
+        wsd.extend(disambiguate(sentence, keepLemmas=True))
         print("Set " + str(n) + ": sentence " +
               str(count) + " out of " + str(len(sentences)))
         count += 1
@@ -33,7 +32,7 @@ for text_data in data.get("donnees_textuelles"):
         "wsd": wsd2
     })
 
-with open('./hom.od_eng_disamb.json', 'w') as f:
+with open('./hom.od_eng_disamb_2.json', 'w') as f:
     json.dump({
         "titre": data.get("titre"),
         "auteur": data.get("auteur"),
