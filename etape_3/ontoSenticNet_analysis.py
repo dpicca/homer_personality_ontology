@@ -22,6 +22,7 @@ def main():
 
 
 def searchOntoSenticNetsSentics(my_word, sparql):
+    word_data = dict()
     word = my_word.name()
     ontoSenticNetReadyWord = word[:-5]
     query = """
@@ -29,29 +30,63 @@ def searchOntoSenticNetsSentics(my_word, sparql):
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
         PREFIX urn: <urn:absolute:ontosenticnet#>
 
-        SELECT ?x ?v
+        SELECT *
         WHERE {
-	          ?x urn:text "%s".
-  	        ?x urn:semantics ?v
+            ?word urn:text "%s".
+  	        ?word urn:semantics ?semantics
         }
     """ % (ontoSenticNetReadyWord)
 
-    results = queryOntoSenticNet(query, sparql)
-    if len(results) > 0:
-        print(ontoSenticNetReadyWord)
-        print("-------")
-        for r in results:
-            print(r["v"]["value"].replace("urn:absolute:ontosenticnet#", ""))
-        print("-------")
-    else:
-        return
+    word_data["semantics"] = queryOntoSenticNetSemantics(query, sparql)
+
+    query = """
+        PREFIX owl: <http://www.w3.org/2002/07/owl#>
+        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+        PREFIX urn: <urn:absolute:ontosenticnet#>
+
+        SELECT *
+        WHERE {
+            ?word urn:text "%s".
+	          ?word urn:sensitivity ?sens.
+  	        ?word urn:aptitude ?apt.
+  	        ?word urn:attention ?att.
+  	        ?word urn:pleasantness ?plea.
+        }
+    """ % (ontoSenticNetReadyWord)
+
+    word_data["metadata"] = queryOntoSenticNetMetadata(query, sparql)
+
+    print(word_data)
 
 
-def queryOntoSenticNet(query, sparql):
+def queryOntoSenticNetSemantics(query, sparql):
     sparql.setQuery(query)
     try:
-        results = sparql.query().convert()
-        return results.get("results").get("bindings")
+        query_result = sparql.query().convert()
+        results = query_result.get("results").get("bindings")
+        return [r.get('semantics').get("value").replace(
+            "urn:absolute:ontosenticnet#",
+            ""
+        ) for r in results]
+        # ret is a stream with the results in XML, see <http://www.w3.org/TR/rdf-sparql-XMLres/>
+    except:
+        print('failed')
+
+
+def queryOntoSenticNetMetadata(query, sparql):
+    sparql.setQuery(query)
+    try:
+        query_result = sparql.query().convert()
+        results = query_result.get("results").get("bindings")
+        if len(results) > 0:
+            r = results[0]
+            del r["word"]
+            for metadata in r.keys():
+                val = r[metadata].get("value")
+                r[metadata] = val
+            return r
+        else:
+            return results
         # ret is a stream with the results in XML, see <http://www.w3.org/TR/rdf-sparql-XMLres/>
     except:
         print('failed')
