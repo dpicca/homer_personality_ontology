@@ -17,7 +17,7 @@ def main():
     similarities = getSimilarities(texts)
     output = prepareOutput(similarities)
 
-    with open('./hom.od_eng_OntoSenticNet_analysis.json', 'w') as output_file:
+    with open('./hom.od_eng_OntoSenticNet_analysis_unrestricted.json', 'w') as output_file:
         json.dump({
             "titre": DATA.get("titre"),
             "auteur": DATA.get("auteur"),
