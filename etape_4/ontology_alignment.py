@@ -1,8 +1,16 @@
 import json
 from SPARQLWrapper import SPARQLWrapper
 from nltk.corpus import wordnet as wn
+import xml.etree.ElementTree as ET
+from xml.dom import minidom
+import time
 
-INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis_unrestricted'
+RDF = ET.Element("rdf:RDF", {
+    "xmlns:rdf": 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
+    "xmlns:lemon": 'http://www.monnetproject.eu/lemon#',
+    "xmlns:ontosenticnet": 'urn:absolute:ontosenticnet#',
+})
+INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis'
 FILE_FORMAT = '.json'
 with open(INPUT_PATH + FILE_FORMAT, 'r') as input_file:
     DATA = json.load(input_file)
@@ -14,28 +22,52 @@ SPARQL = SPARQLWrapper(
 
 def main():
     texts_words = DATA.get('analyse_ontoSenticNet')
-    for _, words in texts_words.items():
-        for word in words:
-            print(queryLemonUby(word.get('word')))
+    st = time.time()
+    print("starting data conversion...")
+    synsets = [{
+        "synset": wn.synset(word["word"]).lemmas()[0].key(),
+        "concept": word["concept"],
+        "sensitivity": word["sensitivity"],
+        "aptitude": word["aptitude"],
+        "attention": word["attention"],
+        "pleasantness": word["pleasantness"],
+    } for words in texts_words.values() for word in words]
+    print("Converted data in %s seconds" % (time.time() - st))
+
+    count = 1
+    total_time = 0
+    print("starting data extraction and xml construction...")
+    for synset in synsets:
+        st = time.time()
+        lemon_WN_Sense = queryLemonUby(synset["synset"])
+        create_xml(lemon_WN_Sense, synset)
+        total_time += time.time() - st
+        if count % 403 == 0:
+            remaining = total_time/count*(len(synsets)-count)
+            print("%s percent done, approx time remaining: %s minutes" %
+                  (
+                      count / len(synsets)*100,
+                      remaining/60
+                  )
+                  )
+        count += 1
+
+    with open("ontology_alignment.xml", "w") as output_file:
+        output_file.write(prettifyXml(RDF))
 
 
 def queryLemonUby(synset):
-    sense_key = wn.synset(synset).lemmas()[0].key()
     query = """
-        PREFIX owl: <http://www.w3.org/2002/07/owl#>
-        PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
-        PREFIX urn: <urn:absolute:ontosenticnet#>
-
         SELECT *
         WHERE {
             ?ref <http://purl.org/olia/ubyCat.owl#externalReference> ?synset .
-            FILTER( contains(lcase(?synset), '%s' ))
+            FILTER( contains(?synset, '%s' ))
         }
-    """ % sense_key
+    """ % synset
     SPARQL.setQuery(query)
     try:
-        reference = SPARQL.query().convert().get(
-            "results").get("bindings")[0].get("ref")
+        result = SPARQL.query().convert()
+        reference = result.get("results").get("bindings")[0].get("ref")
         return reference.get("value").replace(
             "http://lemon-model.net/lexica/uby/wn/",
             ""
@@ -44,7 +76,39 @@ def queryLemonUby(synset):
             ""
         )
     except:
-        print("lol")
+        print("Something went wrong!")
+
+
+def create_xml(synset, word):
+    lexical_sense = ET.SubElement(RDF, "lemon:LexicalSense", {
+        "rdf:about": synset
+    })
+    ET.SubElement(
+        lexical_sense,
+        "ontosenticnet:concept"
+    ).text = word.get("concept")
+    ET.SubElement(
+        lexical_sense,
+        "ontosenticnet:sensitivity"
+    ).text = word.get("sensitivity")
+    ET.SubElement(
+        lexical_sense,
+        "ontosenticnet:aptitude"
+    ).text = word.get("aptitude")
+    ET.SubElement(
+        lexical_sense,
+        "ontosenticnet:attention"
+    ).text = word.get("attention")
+    ET.SubElement(
+        lexical_sense,
+        "ontosenticnet:pleasantness"
+    ).text = word.get("pleasantness")
+
+
+def prettifyXml(xml):
+    rough = ET.tostring(xml, 'utf-8')
+    parsed = minidom.parseString(rough)
+    return parsed.toprettyxml(indent="  ")
 
 
 if __name__ == "__main__":
