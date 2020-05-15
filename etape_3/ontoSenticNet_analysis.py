@@ -2,7 +2,6 @@ import json
 import time
 from nltk.corpus import wordnet as wn
 from SPARQLWrapper import SPARQLWrapper
-from itertools import product
 
 SPARQL = SPARQLWrapper(
     endpoint="http://localhost:3030/OntoSenticNet/sparql", returnFormat="json"
