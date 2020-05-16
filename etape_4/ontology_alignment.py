@@ -10,7 +10,7 @@ RDF = ET.Element("rdf:RDF", {
     "xmlns:lemon": 'http://www.monnetproject.eu/lemon#',
     "xmlns:ontosenticnet": 'urn:absolute:ontosenticnet#',
 })
-INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis'
+INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis_unrestricted'
 FILE_FORMAT = '.json'
 with open(INPUT_PATH + FILE_FORMAT, 'r') as input_file:
     DATA = json.load(input_file)
@@ -52,7 +52,7 @@ def main():
                   )
         count += 1
 
-    with open("ontology_alignment.rdf", "w") as output_file:
+    with open("ontology_alignment_unrestricted.rdf", "w") as output_file:
         output_file.write(prettifyXml(RDF))
 
 
