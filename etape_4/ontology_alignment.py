@@ -52,18 +52,18 @@ def main():
                   )
         count += 1
 
-    with open("ontology_alignment.xml", "w") as output_file:
+    with open("ontology_alignment.rdf", "w") as output_file:
         output_file.write(prettifyXml(RDF))
 
 
 def queryLemonUby(synset):
+    synset_type = synset.split("%")[1][0]
     query = """
         SELECT *
         WHERE {
-            ?ref <http://purl.org/olia/ubyCat.owl#externalReference> ?synset .
-            FILTER( contains(?synset, '%s' ))
+            ?ref <http://purl.org/olia/ubyCat.owl#externalReference> "[POS: %s] %s".
         }
-    """ % synset
+    """ % (conversion(synset_type), synset)
     SPARQL.setQuery(query)
     try:
         result = SPARQL.query().convert()
@@ -103,6 +103,16 @@ def create_xml(synset, word):
         lexical_sense,
         "ontosenticnet:pleasantness"
     ).text = word.get("pleasantness")
+
+
+def conversion(value):
+    return 'noun' if value == "1" else (
+        'verb' if value == "2" else (
+            'adjective' if value == "3" else (
+                'adverb' if value == "4" else 'adjective'
+            )
+        )
+    )
 
 
 def prettifyXml(xml):
