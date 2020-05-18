@@ -6,13 +6,15 @@ from rdflib.namespace import RDF, XSD
 
 
 INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis'
-FILE_FORMAT = '.json'
-with open(INPUT_PATH + FILE_FORMAT, 'r') as input_file:
+INPUT_FORMAT = '.json'
+with open(INPUT_PATH + INPUT_FORMAT, 'r') as input_file:
     DATA = json.load(input_file)
 
 SPARQL = SPARQLWrapper(
     endpoint='http://localhost:3030/LemonUby/sparql', returnFormat='json'
 )
+
+OUTPUT_FORMAT = ".nt"
 
 GRAPH = Graph()
 
@@ -32,7 +34,8 @@ def main():
         synset["synset"] = queryLemonUby(synset["synset"])
         updateGraph(synset)
 
-    GRAPH.serialize(destination="ontology_alignment", format="nt")
+    GRAPH.serialize(destination="test2" +
+                    OUTPUT_FORMAT, format="nt")
 
 
 def queryLemonUby(synset):
@@ -40,7 +43,7 @@ def queryLemonUby(synset):
     query = """
         SELECT *
         WHERE {
-            ?ref <http://purl.org/olia/ubyCat.owl#externalReference> "[POS: %s] %s".
+           ?ref <http://purl.org/olia/ubyCat.owl#externalReference> "[POS: %s] %s".
         }
     """ % (getType(synset_type), synset)
     SPARQL.setQuery(query)
@@ -49,25 +52,17 @@ def queryLemonUby(synset):
         reference = result.get("results").get("bindings")[0].get("ref")
         return reference.get("value").split("#")[0]
     except:
-        print(query)
         print("Something went wrong!")
+        return
 
 
 def updateGraph(synset):
     lemon = URIRef(synset["synset"])
-    concept_ref = URIRef("https://sentic.net/api/en/concept/")
-    ontosenticnet = Namespace("urn:absolute:ontosenticnet#")
+    owl = Namespace("http://www.w3.org/2002/07/owl#")
+    concept = URIRef("https://sentic.net/api/en/concept/%s" % ("_".join(
+        synset["concept"].split(" "))))
 
-    GRAPH.add((lemon, concept_ref, Literal(
-        synset["concept"], datatype=RDF.type)))
-    GRAPH.add((lemon, ontosenticnet.pleasantness, Literal(
-        synset["pleasantness"], datatype=XSD.decimal)))
-    GRAPH.add((lemon, ontosenticnet.attention, Literal(
-        synset["attention"], datatype=XSD.decimal)))
-    GRAPH.add((lemon, ontosenticnet.sensitivity, Literal(
-        synset["sensitivity"], datatype=XSD.decimal)))
-    GRAPH.add((lemon, ontosenticnet.aptitude, Literal(
-        synset["aptitude"], datatype=XSD.decimal)))
+    GRAPH.add((lemon, owl.sameAs, concept))
 
 
 def getType(value):
