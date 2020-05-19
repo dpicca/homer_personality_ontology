@@ -1,5 +1,5 @@
 """
-ETAPE 1: passer de .XML à .json
+ETAPE 1: parse le fichier .xml en fichier .json
 """
 
 import xmltodict
