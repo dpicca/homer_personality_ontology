@@ -7,7 +7,7 @@ import time
 
 RDF = ET.Element("rdf:RDF", {
     "xmlns:rdf": 'http://www.w3.org/1999/02/22-rdf-syntax-ns#',
-    "xmlns:lemon": 'http://www.monnetproject.eu/lemon#',
+    "xmlns:lemon": 'http://www.lemon-model.net/lemon#',
     "xmlns:ontosenticnet": 'urn:absolute:ontosenticnet#',
 })
 INPUT_PATH = '../etape_3/hom.od_eng_OntoSenticNet_analysis_unrestricted'
