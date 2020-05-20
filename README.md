@@ -19,7 +19,7 @@ Comme mentionné au point précédant, le projet se compose de quatre étapes qu
 
 ### Etape 1 - conversion
 
-L'étape une est simple : il s'agit de convertir le fichier [./etape_1/hom.od_eng.xml](https://gitlab.com/ish_unil/students_sw/plato_homer_personality/-/blob/Loris_Rimaz/etape_1/hom.od_eng.xml) pour obtenir `./etape_1/hom.od_eng.json`. L'utilisation de la librairie [xmltodict](pypi.org/project/xmltodict) nous permet de le faire automatiquement.
+L'étape une est simple : il s'agit de convertir le fichier [./etape_1/hom.od_eng.xml](./etape_1/hom.od_eng.xml) pour obtenir `./etape_1/hom.od_eng.json`. L'utilisation de la librairie [xmltodict](pypi.org/project/xmltodict) nous permet de le faire automatiquement.
 
 ### Etape 2 - désambiguisation
 
