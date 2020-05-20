@@ -2,7 +2,7 @@
 
 ## Contexte
 
-Dans le cadre du cours sur le web sémantique donnée par Davide Picca, il nous a été demandé de d'analyser plusieurs textes à raison d'un texte par personne. J'ai eu droit à l'Odyssée par Homère.
+Dans le cadre du cours sur le web sémantique donné par Davide Picca, il nous a été demandé de d'analyser plusieurs textes à raison d'un texte par personne. Je me suis dès lors concentré sur l'Odyssée par Homère.
 
 ## Objectifs
 
