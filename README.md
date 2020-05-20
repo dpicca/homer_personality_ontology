@@ -8,10 +8,10 @@ Dans le cadre du cours sur le web sémantique donnée par Davide Picca, il nous 
 
 Les objectif du projet sont simples et divisibles en quatre étapes distinctes:
 
-- Convertir le fichier de départ (`./etape_1/hom.od_eng.xml`) en fichier `.json`.
-- Désambiguiser les textes
-- Comparer les résultats de la désambiguisation avec les données de OntoSenticNet
-- Faire un alignement ontologique entre nos données et LemonUby
+- Convertir le fichier de départ ([./etape_1/hom.od_eng.xml](./etape_1/hom.od_eng.xml)) en fichier `.json`.
+- Désambiguiser les textes avec [pywsd](https://github.com/alvations/pywsd)
+- Comparer les résultats de la désambiguisation avec les données de [OntoSenticNet](https://sentic.net/ontosenticnet.zip)
+- Faire un alignement ontologique entre nos données et [LemonUby](https://lemon-model.net/lexica/uby/wn/wn.nt.gz)
 
 ## Développement et procédure
 
@@ -50,7 +50,7 @@ Il y a une ou deux subtilités comme les query [SPARQL](https://www.w3.org/TR/rd
 
 Le fichier final, [./etape_3/hom.od_eng_OntoSenticNet_analysis.py](./etape_3/hom.od_eng_OntoSenticNet_analysis.py), renseigne les informations suivant la structure suivante:
 
-````json
+```json
 {
   "word": "muse.n.02",
   "concept": "goddess",
@@ -59,9 +59,51 @@ Le fichier final, [./etape_3/hom.od_eng_OntoSenticNet_analysis.py](./etape_3/hom
   "attention": "0",
   "pleasantness": "0.958"
 }
-```
+```
 
 ### Etape 4 - alignement ontologique
 
-résultats et conclusion
-````
+L'alignement ontologique fut à la fois simple et compliqué. La complexité provenait notamment du peu de théorie à laquelle j'avais pu (m')être exposé. Au final c'est extrêment simple : [Lemon](https://lemon-model.net/index.php) est une ontologie pour décrire des lexiques. [LemonUby](https://lemon-model.net/lexica/uby/modelling.php) renseigne les synsets (résultat d'un alignement ontologique entre WordNet et Lemon). Ainsi, il fallait "juste" aligner nos données avec celle de [LemonUby - WordNet](https://lemon-model.net/lexica/uby/wn/wn.nt.gz).
+
+J'ai réalisé deux code:
+
+#### 1: [./etape_4/ontology_alignment_rdf.py](./etape_4/ontology_alignment_rdf.py)
+
+Ce fichier m'a permis d'obtenir [./etape_4/aligned_ontologies.rdf](./etape_4/aligned_ontologies.rdf). Ce fichier propose un alignement ontologique assez simple inspiré de la structure du [modelling](https://lemon-model.net/lexica/uby/modelling.php) de LemonUby:
+
+```xml
+<lemon:LexicalSense rdf:about="WN_Sense_573">
+   <uby:monolingualExternalRef>
+     <uby:externalReference>[POS: noun] cat%1:06:00::</uby:externalReference>
+     <uby:externalSystem>Wordnet 3.0 part of speech and sense key</uby:externalSystem>
+   </uby:monolingualExternalRef>
+</lemon:LexicalSense>
+```
+
+devient alors:
+
+```xml
+<lemon:LexicalSense rdf:about="WN_Sense_48086">
+  <ontosenticnet:concept>commonwealth</ontosenticnet:concept>
+  <ontosenticnet:sensitivity>0</ontosenticnet:sensitivity>
+  <ontosenticnet:aptitude>0.647</ontosenticnet:aptitude>
+  <ontosenticnet:attention>-0.51</ontosenticnet:attention>
+  <ontosenticnet:pleasantness>0.716</ontosenticnet:pleasantness>
+</lemon:LexicalSense>
+```
+
+Ainsi, du moment qu'on recherche le même "WN*Sense*###", on trouvera les information de LemonUby et de nos données
+
+#### 2. [./etape_4/ontology_alignment_nt.py](./etape_4/ontology_alignment_nt.py)
+
+Ce fichierm'a permis de créer les trois fichiers `.nt`. Petite description rapide de ceux-ci:
+
+1. [./etape_4/aligned_ontologies.nt](./etape_4/aligned_ontologies.nt). Basé sur une logique de triplets, ce fichier propose l'alignement ontogolique le plus proche de LemonUby. En effet, chaque triplet commence par la référence du mot dans LemonUby, puis il continue avec l'élément correspondant dans OntoSenticNet, pour finir sur la valeur de cet élément. Il est obtenu en utilisant la fonction `updateGraph()`
+2. [./etape*4/aligned_ontologies*(includes_owl_same_as).nt](<./etape_4/aligned_ontologies_(includes_owl_same_as).nt>). Toujours basé sur la logique de triplets, celui-ci propose une version légérement différente : les information de LemonUby n'apparraissent qu'une fois. Je m'explique. Chaque tripler qui commence par une référence à LemonUby se continue par un `owl:sameAs` et est terminé par la référence vers le concept OntoSenticNet. Il ne reste alors plus qu'à écrire des triplets qui renseignent les information relatives à ces concepts OntoSenticNet.
+3. [./etape*4/aligned_ontologies*(only_owl_same_as).nt](<./etape_4/aligned_ontologies_(only_owl_same_as).nt>). Version la plus simple : on ne fait que des références entre les donneés d'OntoSenticNet et celles de LemonUby. Chaque triple est composé de la référence LemonUby, puis est suivi par un `owl:sameAs`, et est terminé par la référence dans OntoSenticNet. Cette version est plus générale car elle ne renseigne pas de données précises (ou du moins pas de données précises qu'on aurait récupéré auparavant) à part les références elles-mêmes.
+
+## Résultats et conclusion
+
+Les codes produits lors de la réalisation de ce projet amènent à des résultats qui semblent corrects. J'avoue ne pas avoir testé moi-même les alignements ontologiques, mais en principe tout devrait fonctionner. Il est intéressant de noter aussi que tous les fichiers obtenus à l'issue de ce projet sont des candidats potentiels pour le titre de "travail réussi". Ce que j'entend par là c'est que tous ces résultats présentent des méthodologies différente, des approches différentes, et, du coup, des résultats différents. Un autre point qu'il me semble important de souligne est que ce projet est constitué comme une pipeline : du moment qu'on a des données de départ qui sont formatées correctement, il suffit d'executer les codes les uns après les autres pour arriver au resultat final.
+
+Il est difficile de tirer des conclusions d'un projet comme celui-ci, ne serait-ce que parce qu'il est difficile de prendre conscience de son utilité scientifique. Je dirais néanmoins qu'il m'a permis d'en savoir plus sur le web sémantique et sur les ontologies. Mon expérience dans ce projet m'a aussi appris que la modélisation était une étape d'une importance capitale pour le bon développement de la pipeline.
