@@ -107,7 +107,7 @@ Ce fichierm'a permis de créer les trois fichiers `.nt`. Petite description rapi
 Les codes produits lors de la réalisation de ce projet amènent à des résultats qui semblent corrects. J'avoue ne pas avoir testé moi-même les alignements ontologiques, mais en principe tout devrait fonctionner. Il est intéressant de noter aussi que tous les fichiers obtenus à l'issue de ce projet sont des candidats potentiels pour le titre de "travail réussi". Ce que j'entend par là c'est que tous ces résultats présentent des méthodologies différente, des approches différentes, et, du coup, des résultats différents. Un autre point qu'il me semble important de souligner est que ce projet est constitué comme une pipeline : du moment qu'on a des données de départ qui sont formatées correctement, il suffit d'executer les codes les uns après les autres pour arriver au resultat final.
 
 Pour résumer, tous les fichiers de résultats créent un alignement qui lie les données de cette façon :
-Concept LemonUby - informations dans OntoSenticNet.
+Concept LemonUby -> informations dans OntoSenticNet.
 
 Spécifiquement :
 
