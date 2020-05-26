@@ -112,7 +112,7 @@ Concept LemonUby - informations dans OntoSenticNet.
 Spécifiquement :
 
 - [./etape_4/aligned_ontologies.rdf](./etape_4/aligned_ontologies.rdf) : suivant la structure Lemon, on remplace les données de lemon (notamment `uby:monolingualExternalRef`) par les données prises d'OntoSenticNet.
-- [./etape_4/aligned_ontologies.nt](./etape_4/aligned_ontologies.nt) : comme décrit dans le [read.me de Simon Cappelle](gitlab.com/ish_unil/students_sw/plato_gomer_personality/-/tree/Simon_Cappelle), cet alignement ontologique prend la forme de n-triples qui lient directement les données LemonUby avec les données OntoSenticNet.
+- [./etape_4/aligned_ontologies.nt](./etape_4/aligned_ontologies.nt) : comme décrit dans le read.me de Simon Cappelle, cet alignement ontologique prend la forme de n-triples qui lient directement les données LemonUby avec les données OntoSenticNet.
 - [./etape*4/aligned_ontologies*(includes_owl_same_as).nt](<./etape_4/aligned_ontologies_(includes_owl_same_as).nt>) : la seule différence avec le fichier précédent est les données LemonUby sont d'abord misent en rapport avec les concepts OntoSenticNets via la commande `owl:sameAs`, et les données récupérées sur OntoSenticNet sont misent en relation avec les concepts eux-mêmes.
 - [./etape*4/aligned_ontologies*(only_owl_same_as).nt](<./etape_4/aligned_ontologies_(only_owl_same_as).nt>) : version simplifiée du point précédant, ce code ne possède que les instruction `owl:sameAs`. De fait, les données récupérées sur OntoSenticNet ne sont pas présente, puisque l'idée de ce fichier est de pointer, à partir d'un concept OntoSenticNet ou d'un objet Lemon:LexicalSense, vers les données correspondantes dans l'autre ontologie.
 
