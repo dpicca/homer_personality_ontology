@@ -1,0 +1,11 @@
+name: homer_personality_ontology
+channels:
+  - defaults
+dependencies:
+  - python=3.10
+  - xmltodict
+  - nltk
+  - sparqlwrapper
+  - pip
+  - pip:
+    - pywsd
