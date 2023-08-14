@@ -70,16 +70,17 @@ def prepareOutput(sims):
         text_data_list = list()
         for similarity in similarities:
             if (similarity is not None) and any(val > 0 for val in similarity):
+                # rest of the code
                 similarity[2] = " ".join(similarity[2].split("_")) if len(
                     similarity[2].split("_")) > 0 else similarity[2]
                 meta_data = queryOntoSenticNetMetadata(similarity[2])
                 text_data_list.append({
                     "word": similarity[1].name(),
                     "concept": similarity[2],
-                    "sensitivity": meta_data.get("sensitivity", None),
-                    "aptitude": meta_data.get("attitude", None),
-                    "attention": meta_data.get("introspection", None),
-                    "pleasantness": meta_data.get("temper", None),
+                    "sensitivity": meta_data["sensitivity"],
+                    "aptitude": meta_data["attitude"],
+                    "attention": meta_data["introspection"],
+                    "pleasantness": meta_data["temper"],
                 })
         text_data[key] = text_data_list
     return text_data
@@ -87,10 +88,10 @@ def prepareOutput(sims):
 def searchOntoSenticNetsSentics(my_word):
     word_data = dict()
     word = my_word.name()
-
     ontoSenticNetRdyWord = word[:-5]
     word_data["word"] = my_word
     word_data["semantics"] = queryOntoSenticNetSemantics(ontoSenticNetRdyWord)
+
     if word_data.get("semantics") and len(word_data.get("semantics")) > 0:
         word = word_data.get("word")
         semantics = word_data.get("semantics")
@@ -149,6 +150,7 @@ def queryOntoSenticNetMetadata(word):
     """
     Interroger OntoSenticNet pour les données attachées au concept
     """
+    print(f"Querying OntoSenticNet for {word}")
     query = f"""
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
