@@ -70,17 +70,16 @@ def prepareOutput(sims):
         text_data_list = list()
         for similarity in similarities:
             if (similarity is not None) and any(val > 0 for val in similarity):
-                # rest of the code
                 similarity[2] = " ".join(similarity[2].split("_")) if len(
                     similarity[2].split("_")) > 0 else similarity[2]
                 meta_data = queryOntoSenticNetMetadata(similarity[2])
                 text_data_list.append({
                     "word": similarity[1].name(),
                     "concept": similarity[2],
-                    "sensitivity": meta_data["sens"],
-                    "aptitude": meta_data["apt"],
-                    "attention": meta_data["att"],
-                    "pleasantness": meta_data["plea"],
+                    "sensitivity": meta_data.get("sensitivity", None),
+                    "aptitude": meta_data.get("attitude", None),
+                    "attention": meta_data.get("introspection", None),
+                    "pleasantness": meta_data.get("temper", None),
                 })
         text_data[key] = text_data_list
     return text_data
@@ -88,10 +87,10 @@ def prepareOutput(sims):
 def searchOntoSenticNetsSentics(my_word):
     word_data = dict()
     word = my_word.name()
+
     ontoSenticNetRdyWord = word[:-5]
     word_data["word"] = my_word
     word_data["semantics"] = queryOntoSenticNetSemantics(ontoSenticNetRdyWord)
-
     if word_data.get("semantics") and len(word_data.get("semantics")) > 0:
         word = word_data.get("word")
         semantics = word_data.get("semantics")
@@ -137,13 +136,19 @@ def queryOntoSenticNetSemantics(word):
     except Exception as e:
         print(f"Query failed due to: {e}")
 
-
+def processQueryResults(results):
+    meta_data = {}
+    for r in results:
+        property_uri = r.get('property').get('value')
+        property_name = property_uri.split('#')[-1]  # Extract the property name from the URI
+        value = r.get('value').get('value')
+        meta_data[property_name] = value
+    return meta_data
 
 def queryOntoSenticNetMetadata(word):
     """
     Interroger OntoSenticNet pour les données attachées au concept
     """
-    print(f"Querying OntoSenticNet for {word}")
     query = f"""
         PREFIX owl: <http://www.w3.org/2002/07/owl#>
         PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
@@ -165,18 +170,13 @@ def queryOntoSenticNetMetadata(word):
     """
 
     SPARQL.setQuery(query)
+    SPARQL.setQuery(query)
     try:
         query_result = SPARQL.query().convert()
-        results = query_result.get("results", {}).get("bindings", [])
-
-        # If there are results, process and return them
+        results = query_result.get("results").get("bindings")
         if results:
-            processed_results = {}
-            for r in results:
-                property_val = r["property"]["value"].split("#")[-1]  # Extracting the last part after '#'
-                value_val = r["value"]["value"]
-                processed_results[property_val] = value_val
-            return processed_results
+            meta_data = processQueryResults(results)
+            return meta_data
         else:
             return None
     except Exception as e:
